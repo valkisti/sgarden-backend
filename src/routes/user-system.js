@@ -1,10 +1,7 @@
 import express from "express";
-import { OAuth2Client } from "google-auth-library";
 
 import { validations, email } from "../utils/index.js";
 import { User, Reset, Invitation } from "../models/index.js";
-
-const { GOOGLE_CLIENT_ID } = process.env;
 
 const router = express.Router();
 
@@ -104,59 +101,6 @@ router.post("/authenticate",
 					email: user.email,
 				},
 				token: validations.jwtSign({ username, id: user._id, email: user.email }),
-			});
-		} catch (error) {
-			return next(error);
-		}
-	});
-
-router.post("/authenticateGoogle",
-	(req, res, next) => validations.validate(req, res, next, "authenticateGoogle"),
-	async (req, res, next) => {
-		const { token: tokenId } = req.body;
-		try {
-			// Connect to google client with the application's id
-			const client = new OAuth2Client(GOOGLE_CLIENT_ID);
-
-			// Verify the token provided by the user
-			const ticket = await client.verifyIdToken({
-				idToken: tokenId,
-				audience: GOOGLE_CLIENT_ID,
-			});
-
-			if (!ticket) {
-				return res.json({
-					success: false,
-					message: "Authentication error",
-				});
-			}
-
-			// Get the email and name of the user
-			const payload = ticket.getPayload();
-			const { email: googleEmail, name: googleUsername } = payload;
-
-			// Search for the user in the DB
-			let user = await User.findOne({ email: googleEmail });
-			if (user) {
-				if (!user.username) {
-					user.username = googleUsername;
-					await user.save();
-				}
-			} else {
-				// Create a user that didn't existed
-				user = await new User({
-					email: googleEmail,
-					username: googleUsername,
-				}).save();
-			}
-
-			// Generate the user's token
-			const token = validations.jwtSign({ email, id: user._id, username: googleUsername });
-
-			return res.json({
-				success: true,
-				user: { email, id: user._id, username: googleUsername },
-				token,
 			});
 		} catch (error) {
 			return next(error);

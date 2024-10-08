@@ -17,19 +17,11 @@ const password = yup
 	.trim()
 	.min(minPassword);
 
-const token = yup
-	.string()
-	.trim();
-
 const request = yup.object().shape({ username: username.required() });
 
 const authenticate = yup.object().shape({
 	username: username.required(),
 	password: password.required(),
-});
-
-const authenticateGoogle = yup.object().shape({
-	token: token.required(),
 });
 
 const register = yup.object().shape({
@@ -43,7 +35,7 @@ const invite = yup.object().shape({
 });
 
 const helpers = {
-	minPassword, authenticate, authenticateGoogle, register, request, invite,
+	minPassword, authenticate, register, request, invite,
 };
 
 export default helpers;

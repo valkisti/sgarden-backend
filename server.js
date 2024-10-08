@@ -1,8 +1,7 @@
 import "dotenv/config";
 
 import path from "node:path";
-import fs from "node:fs";
-import url, { fileURLToPath } from "node:url";
+import { fileURLToPath } from "node:url";
 import http from "node:http";
 
 import express from "express";
@@ -16,8 +15,7 @@ import helmet from "helmet";
 
 import routes from "./src/routes/index.js";
 import { setServerTimeout } from "./src/middleware/index.js";
-import { attachUser, init } from "./src/utils/index.js";
-import initializeWebsocket from "./websocket.js";
+import { init } from "./src/utils/index.js";
 
 const { NODE_ENV, PORT } = process.env;
 
@@ -44,23 +42,11 @@ app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use(favicon(path.join(path.dirname(fileURLToPath(import.meta.url)), "src", "assets", "images", "favicon.ico")));
 
 app.use("/api", routes);
-
-// Server static files
-const uploadFolderPath = path.join(path.dirname(url.fileURLToPath(import.meta.url)), "src/assets/uploads");
-if (!fs.existsSync(uploadFolderPath)) {
-	fs.mkdirSync(uploadFolderPath, { recursive: true });
-}
-
-app.use("/uploads/", [attachUser, express.static(path.join(path.dirname(url.fileURLToPath(import.meta.url)), "src/assets/uploads"))]);
-
 app.all("/*", (_, res) => res.json({ body: "It works!" }));
 
 app.use(Sentry.Handlers.errorHandler());
 
 const port = PORT || 4000;
 server.listen(port, () => NODE_ENV !== "test" && console.log(chalk.bold.cyan(`>>> Live at http://localhost:${port}`)));
-
-// Start the websocket server
-initializeWebsocket(server);
 
 export default app;

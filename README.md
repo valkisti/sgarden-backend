@@ -1,4 +1,4 @@
-This is a template backend.
+The backend of SGarden platform
 
 ## Prerequisites
 
