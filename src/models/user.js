@@ -16,6 +16,7 @@ const userSchema = new Schema(
 			minlength: validations.minPassword,
 		},
 		lastActiveAt: { type: Date, default: () => new Date() },
+		role: { type: String, default: "user", enum: ["user", "admin"] },
 	},
 	{ timestamps: true, toObject: { versionKey: false } },
 );

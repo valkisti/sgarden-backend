@@ -69,4 +69,19 @@ router.post("/delete", async (req, res) => {
 	}
 });
 
+router.post("/role", async (req, res) => {
+	try {
+		const { id, role } = req.body;
+		const user = await User.findByIdAndUpdate(id, { role });
+		if (user) {
+			return res.json({ success: true });
+		}
+
+		return res.json({ success: false });
+	} catch (error) {
+		Sentry.captureException(error);
+		return res.status(500).json({ message: "Something went wrong." });
+	}
+});
+
 export default router;

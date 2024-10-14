@@ -99,8 +99,9 @@ router.post("/authenticate",
 					username,
 					id: user._id,
 					email: user.email,
+					role: user.role,
 				},
-				token: validations.jwtSign({ username, id: user._id, email: user.email }),
+				token: validations.jwtSign({ username, id: user._id, email: user.email, role: user.role }),
 			});
 		} catch (error) {
 			return next(error);
